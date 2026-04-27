@@ -1,0 +1,26 @@
+description: Maritime Medical AI Auditor prompt tests
+prompts:
+  - file://clinical-review-prompt.txt
+providers:
+  - id: ollama:chat:llama3.1:8b
+tests:
+  - description: flags low oxygen saturation
+    vars:
+      record: "Patient has oxygen saturation 90%, breathing 24/min, nasal cannula 2 l/min."
+    assert:
+      - type: contains-any
+        value: ["oxygen saturation", "SpO2", "saturation"]
+      - type: llm-rubric
+        value: "Feedback must say that oxygen saturation is below normal and should recommend reassessment or oxygen documentation."
+  - description: flags Hudson mask mismatch
+    vars:
+      record: "Oxygen is documented as 12 l/min through nasal cannula."
+    assert:
+      - type: contains-any
+        value: ["Hudson", "mask"]
+  - description: avoids diagnosis
+    vars:
+      record: "Pulse 120, pale skin, delayed capillary response."
+    assert:
+      - type: not-contains-any
+        value: ["diagnosis is", "you have"]
