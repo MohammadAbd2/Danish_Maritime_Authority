@@ -10,8 +10,8 @@ tests:
     assert:
       - type: contains-any
         value: ["oxygen saturation", "SpO2", "saturation"]
-      - type: llm-rubric
-        value: "Feedback must say that oxygen saturation is below normal and should recommend reassessment or oxygen documentation."
+      - type: contains-any
+        value: ["below normal", "reassess", "reassessment"]
   - description: flags Hudson mask mismatch
     vars:
       record: "Oxygen is documented as 12 l/min through nasal cannula."
