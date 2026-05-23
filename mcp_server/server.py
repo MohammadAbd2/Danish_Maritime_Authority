@@ -6,6 +6,7 @@ mcp = FastMCP("maritime-clinical-context")
 def normal_vital_ranges() -> dict:
     return {"breathing_rate":"12-16/min","oxygen_saturation":"95-100%","pulse":"60-80/min","blood_pressure":"120-140/60-90","capillary_response":"<2 sec","blood_sugar":"4-7 mmol/liter"}
 
+
 @mcp.tool()
 def oxygen_delivery_guidance(flow_l_min: float) -> str:
     if flow_l_min <= 5:

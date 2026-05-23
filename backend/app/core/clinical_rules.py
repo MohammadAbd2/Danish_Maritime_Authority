@@ -63,4 +63,10 @@ def evaluate_rules(record: RMRSubmission):
 
     if not record.observations:
         findings.append(_finding("minor", "Observation chart", "No observation chart rows are recorded.", "Der er ingen rækker i observationsskemaet.", "Add at least one observation row and repeat values after interventions.", "Tilføj mindst én observationsrække og gentag værdier efter interventioner."))
+    
+    for i, obs in enumerate(record.observations):
+        if obs.blood_sugar is not None:
+            if obs.blood_sugar < 4 or obs.blood_sugar > 11:
+                findings.append(_finding("major", "Observation chart", f"Row {i+1}: Blood sugar is {obs.blood_sugar} mmol/l, outside the normal 4-11 mmol/l range.", f"Række {i+1}: Blodsukker er {obs.blood_sugar} mmol/l, uden for normalområdet 4-11 mmol/l.", "Recheck blood sugar and document any symptoms (shakiness, sweating, confusion). If severely elevated or low, contact Radio Medical.", "Gentag blodsukkermåling og dokumentér symptomer (tremor, svedtendens, forvirring). Ved meget høje eller lave værdier kontakt Radio Medical."))
+    
     return findings

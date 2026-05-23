@@ -26,13 +26,132 @@ const fieldLabels = {
 };
 const obsLabels = { en:{date:'Date',time:'Time',general_condition:'General condition',consciousness_level:'Level of consciousness',oxygen_l_min:'Oxygen liters/min',breathing_rate:'Breathing frequency/min',capillary_response_seconds:'Capillary response sec.',oxygen_saturation:'Oxygen saturation %',heart_rate:'Heart rate/min',blood_pressure:'Blood pressure',temperature_mouth:'Mouth temperature',pupil_reaction:'Pupil reaction',venous_cannula_inserted:'Venous cannula inserted',intravenous_fluid_drops_min:'IV fluid drops/min',fluid_intake_drink:'Fluid intake/drink',urine_24h:'24-hour urine',urine_sticks:'Urine sticks',blood_sugar:'Blood sugar',malaria_test:'Malaria test',crp_test:'CRP test'}, da:{date:'Dato',time:'Tid',general_condition:'Almentilstand',consciousness_level:'Bevidsthedsniveau',oxygen_l_min:'Ilt liter/min',breathing_rate:'Respirationsfrekvens/min',capillary_response_seconds:'Kapillærrespons sek.',oxygen_saturation:'Iltmætning %',heart_rate:'Hjertefrekvens/min',blood_pressure:'Blodtryk',temperature_mouth:'Temperatur i munden',pupil_reaction:'Pupilreaktion',venous_cannula_inserted:'Venekanyle anlagt',intravenous_fluid_drops_min:'IV-væske dråber/min',fluid_intake_drink:'Væskeindtag/drikke',urine_24h:'24-timers urin',urine_sticks:'Urinstix',blood_sugar:'Blodsukker',malaria_test:'Malariatest',crp_test:'CRP-test'} };
 function langCode(form){ return form.language === 'da' ? 'da' : 'en'; }
-function num(v){ return v === '' || v === null || v === undefined ? null : Number(v); }
+function num(v){ 
+  if(v === '' || v === null || v === undefined) return null; 
+  // Handle range formats like "60-90"
+  if(typeof v === 'string' && v.includes('-')) {
+    const parts = v.split('-');
+    return Number(parts[parts.length - 1]) || null; // Take the last number
+  }
+  return Number(v); 
+}
 function bool(v){ if(v === 'true' || v === true) return true; if(v === 'false' || v === false) return false; return null; }
 function prep(form){ const clean=JSON.parse(JSON.stringify(form)); ['oxygen_l_min','breathing_rate','oxygen_saturation','capillary_response_seconds','pulse','systolic_bp','diastolic_bp','consciousness_level','temperature_mouth'].forEach(k=>clean.assessment[k]=num(clean.assessment[k])); ['airway_clear','neck_back_injury_suspected','venous_cannula_inserted','convulsions','paralysis','pupil_reaction_normal','expose_exam_performed','hypothermia_overheating_checked','temperature_measured'].forEach(k=>clean.assessment[k]=bool(clean.assessment[k])); clean.observations=clean.observations.map(r=>({...r,general_condition:num(r.general_condition),consciousness_level:num(r.consciousness_level),oxygen_l_min:num(r.oxygen_l_min),breathing_rate:num(r.breathing_rate),capillary_response_seconds:num(r.capillary_response_seconds),oxygen_saturation:num(r.oxygen_saturation),heart_rate:num(r.heart_rate),temperature_mouth:num(r.temperature_mouth),blood_sugar:num(r.blood_sugar)})); return clean; }
 function Field({label,value,onChange,type='text',children,wide=false}){ return <label className={'field '+(wide?'wide':'')}><span>{label}</span>{children || <input type={type} value={value ?? ''} onChange={e=>onChange(e.target.value)} />}</label>; }
 function SelectBool({value,onChange,t}){ return <select value={value===null?'':String(value)} onChange={e=>onChange(e.target.value===''?null:e.target.value==='true')}><option value=''>{t.select}</option><option value='true'>{t.yes}</option><option value='false'>{t.no}</option></select>; }
 function Check({label,checked,onChange}){ return <label className='check'><input type='checkbox' checked={!!checked} onChange={e=>onChange(e.target.checked)} />{label}</label>; }
-function randomData(){ return { ...empty, language:'da', patient:{...empty.patient,name_title:'Mohammad Abd Al Rahem',birthdate_cpr:'15/04/1998',gender:'Mand',nationality:'Syrisk',date:'15/04/2026',utc:'01:00',shipping_company:'Denmark Ship',ship_name:'Titanic Training Vessel',ship_email:'ship@dma.dk',satellite_call_no:'+45 72 19 60 00',call_signal:'OXTS',coordinates:'55.329, 11.138',destination_eta:'Korsør / 16:00',nearest_port_eta:'Korsør / 2 timer',medicine_chest:'Category B',page:'1 of 1',has_allergies:'no',takes_medicine:'unknown',problem_description:'Patienten siger, at hjertet banker meget hurtigt efter løb på dækket. Han føler sig svimmel og lidt forpustet.'}, assessment:{...empty.assessment,airway_clear:true,oxygen_l_min:2,oxygen_method:'Nasal cannula ≤ 5 l/min',breathing_description_fast:true,breathing_description_normal:false,breathing_rate:22,oxygen_saturation:96,capillary_response_seconds:2,pulse:126,pulse_measured_at:'wrist',systolic_bp:145,diastolic_bp:92,skin_color:'Normal',skin_feel:'Warm and sweaty',consciousness_level:1,convulsions:false,paralysis:false,pupil_reaction_normal:true,expose_exam_performed:true,temperature_measured:true,temperature_mouth:36.9,performed_actions:'Patienten blev sat ned efter løb. Vand givet. Puls kontrolleres igen efter 10 minutters hvile.',medical_officer_name_title:'Mohammad Abd Al Rahem, Medical Officer'}, observations:[{...emptyObs,date:'15/04/2026',time:'01:05',general_condition:2,consciousness_level:1,oxygen_l_min:2,breathing_rate:22,capillary_response_seconds:2,oxygen_saturation:96,heart_rate:126,blood_pressure:'145/92',temperature_mouth:36.9,pupil_reaction:'+ / +',venous_cannula_inserted:'no',blood_sugar:5.4}]}; }
+function randomData(){ 
+  const names = ['Mohammad Abd Al Rahem', 'James Patterson', 'Anna Christensen', 'Roberto Silva', 'Emma Hansen', 'Chen Wei', 'Aisha Okafor', 'Jan Kowalski', 'Sophia Rossi', 'Ahmed Hassan'];
+  const genders = ['Male', 'Female'];
+  const nationalities = ['Syrian', 'British', 'Danish', 'Portuguese', 'Swedish', 'Chinese', 'Nigerian', 'Polish', 'Italian', 'Egyptian'];
+  const ships = ['MV Ocean Explorer', 'Titanic Training Vessel', 'Nordic Star', 'Northern Wind', 'Sea Guardian', 'Coastal Voyager', 'Pacific Breeze', 'Atlantic Wave'];
+  const companies = ['Denmark Ship', 'Nordic Shipping', 'Global Maritime', 'North Sea Lines', 'European Vessels', 'Ocean Corp', 'Maritime Services'];
+  const destinations = ['Copenhagen/14:00', 'Korsør/16:00', 'Hamburg/18:00', 'Oslo/12:00', 'Stockholm/20:00', 'Amsterdam/15:00'];
+  const conditions = ['Good', 'Fair', 'Poor', 'Critical'];
+  const skinColors = ['Normal', 'Pale', 'Reddish', 'Bluish'];
+  
+  const randItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  
+  return { 
+    ...empty, 
+    language:'en', 
+    patient:{
+      ...empty.patient,
+      name_title:randItem(names),
+      birthdate_cpr:`${rand(1,28)}/${rand(1,12)}/${rand(1950,2010)}`,
+      gender:randItem(genders),
+      nationality:randItem(nationalities),
+      date:new Date().toLocaleDateString('en-GB'),
+      utc:`${String(rand(0,23)).padStart(2,'0')}:${String(rand(0,59)).padStart(2,'0')}`,
+      shipping_company:randItem(companies),
+      ship_name:randItem(ships),
+      ship_email:`ship${rand(1,999)}@dma.dk`,
+      satellite_call_no:`+${rand(10000,99999)} ${rand(10000,99999)} ${rand(1000,9999)}`,
+      call_signal:`${String.fromCharCode(rand(65,90))}${String.fromCharCode(rand(65,90))}${rand(100,999)}`,
+      coordinates:`${(rand(50,60) + Math.random()).toFixed(3)}, ${(rand(0,15) + Math.random()).toFixed(3)}`,
+      destination_eta:randItem(destinations),
+      nearest_port_eta:randItem(destinations.slice(0,3)),
+      medicine_chest:randItem(['Category A', 'Category B', 'Category C']),
+      page:'1 of 1',
+      has_allergies:randItem(['yes', 'no', 'unknown']),
+      allergies_details:['Penicillin', 'Shellfish', 'Latex', ''][rand(0,3)],
+      takes_medicine:randItem(['yes', 'no', 'unknown']),
+      medicine_details:['Aspirin', 'Metoprolol', 'Insulin', ''][rand(0,3)],
+      problem_description:['Patient reports chest pain and shortness of breath.', 'Head injury after fall on deck. Minor bleeding.', 'Severe gastrointestinal symptoms with fever.', 'Injury to left leg with swelling and bruising.', 'Suspected allergic reaction with rash.'][rand(0,4)]
+    }, 
+    assessment:{
+      ...empty.assessment,
+      airway_clear:Math.random()>0.3,
+      jaw_lift:Math.random()>0.7,
+      suction_applied:Math.random()>0.7,
+      guedel_airway:Math.random()>0.8,
+      cpr_initiated_at:'',
+      oxygen_l_min:Math.random()>0.7?rand(1,8):null,
+      oxygen_method:['Nasal cannula ≤ 5 l/min', 'Hudson mask >10 l/min', ''][rand(0,2)],
+      neck_back_injury_suspected:Math.random()>0.7?Math.random()>0.5:null,
+      breathing_description_fast:Math.random()>0.5,
+      breathing_description_slow:Math.random()>0.8,
+      breathing_description_shallow:Math.random()>0.8,
+      breathing_description_deep:Math.random()>0.7,
+      breathing_description_normal:Math.random()>0.5,
+      breathing_other:'',
+      breathing_rate:rand(12,30),
+      oxygen_saturation:rand(92,100),
+      capillary_response_seconds:rand(1,4),
+      venous_cannula_inserted:Math.random()>0.7?Math.random()>0.5:null,
+      skin_color:randItem(skinColors),
+      skin_feel:['Warm', 'Cold', 'Clammy', 'Dry'][rand(0,3)],
+      pulse:rand(55,120),
+      pulse_measured_at:['wrist', 'neck', 'groin'][rand(0,2)],
+      systolic_bp:rand(110,160),
+      diastolic_bp:rand(60,95),
+      consciousness_level:rand(1,2),
+      convulsions:Math.random()>0.9?Math.random()>0.5:false,
+      paralysis:Math.random()>0.9?Math.random()>0.5:false,
+      pupil_reaction_normal:Math.random()>0.3,
+      pupil_reaction_description:['Equal and reactive', 'Dilated', 'Constricted', 'Slow to react'][rand(0,3)],
+      expose_exam_performed:Math.random()>0.4,
+      expose_findings:['No signs of injury', 'Bruising on left leg', 'Rash on trunk', 'Minor lacerations'][rand(0,3)],
+      hypothermia_overheating_checked:Math.random()>0.6,
+      hypothermia_overheating_findings:'',
+      temperature_measured:Math.random()>0.3,
+      temperature_mouth:parseFloat((36.5 + (Math.random()-0.5)*3).toFixed(1)),
+      temperature_alternative:'',
+      performed_actions:['Patient was placed in recovery position and monitored.', 'IV line established, fluids administered.', 'Oxygen therapy initiated, vital signs monitored.', 'Wound cleaned and bandaged.'][rand(0,3)],
+      medication_given:['Aspirin 500mg', 'Paracetamol 1000mg', 'Ibuprofen 400mg', 'None'][rand(0,3)],
+      action_time_1:'',
+      action_time_2:'',
+      action_time_3:'',
+      action_time_4:'',
+      medical_officer_name_title:randItem(names)+', Medical Officer',
+      where:'Deck'
+    }, 
+    observations:[{
+      ...emptyObs,
+      date:new Date().toLocaleDateString('en-GB'),
+      time:`${String(rand(0,23)).padStart(2,'0')}:${String(rand(0,59)).padStart(2,'0')}`,
+      general_condition:rand(1,3),
+      consciousness_level:rand(1,2),
+      oxygen_l_min:Math.random()>0.6?rand(1,5):null,
+      breathing_rate:rand(12,28),
+      capillary_response_seconds:rand(1,3),
+      oxygen_saturation:rand(94,100),
+      heart_rate:rand(60,110),
+      blood_pressure:`${rand(110,160)}/${rand(60,95)}`,
+      temperature_mouth:parseFloat((36.5 + (Math.random()-0.5)*2).toFixed(1)),
+      pupil_reaction:'+ / +',
+      venous_cannula_inserted:Math.random()>0.6?'yes':'no',
+      intravenous_fluid_drops_min:Math.random()>0.7?`${rand(10,30)}`:'' ,
+      fluid_intake_drink:['Water given', 'Juice given', 'No fluids', 'Tea given'][rand(0,3)],
+      urine_24h:'Normal',
+      urine_sticks:'Normal',
+      blood_sugar:parseFloat((5 + Math.random()*4).toFixed(1)),
+      malaria_test:'Negative',
+      crp_test:'Normal'
+    }]
+  }; 
+}
 
 function App(){
  const [form,setForm]=useState(empty); const [review,setReview]=useState(null); const [uploadInfo,setUploadInfo]=useState(null); const [busy,setBusy]=useState(false); const [error,setError]=useState(''); const [serverStatus,setServerStatus]=useState('checking'); const L=langCode(form); const t=i18n[L]; const f=fieldLabels[L]; const ob=obsLabels[L]; const showEn=form.language!=='da'; const showDa=form.language!=='en';
@@ -41,7 +160,8 @@ function App(){
  useEffect(()=>{ if(uploadInfo) setForm(x=>({...x, uploaded_context:uploadInfo.preview || ''})); },[uploadInfo]);
  const setPatient=(k,v)=>setForm(x=>({...x,patient:{...x.patient,[k]:v}})); const setAssessment=(k,v)=>setForm(x=>({...x,assessment:{...x.assessment,[k]:v}})); const setObs=(i,k,v)=>setForm(x=>({...x,observations:x.observations.map((r,idx)=>idx===i?{...r,[k]:v}:r)}));
  async function submit(){ setBusy(true); setError(''); try{ const r=await fetch(`${API}/review`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(prep(form))}); if(!r.ok){let e=await r.text(); throw new Error(e||'Review failed');} setReview(await r.json()); }catch(e){setError(e.message||'Could not connect to backend'); setServerStatus('down');} finally{setBusy(false);} }
- async function upload(e){ const file=e.target.files[0]; if(!file)return; const fd=new FormData(); fd.append('file',file); setBusy(true); setError(''); try{ const r=await fetch(`${API}/files/upload`,{method:'POST',body:fd}); if(!r.ok) throw new Error(await r.text()); const data=await r.json(); setUploadInfo(data); setForm(x=>({...x,uploaded_context:data.preview||''})); }catch(err){setError(err.message||'Upload failed'); setServerStatus('down');} finally{setBusy(false); e.target.value='';}}
+  async function upload(e){ const file=e.target.files[0]; if(!file)return; const fd=new FormData(); fd.append('file',file); setBusy(true); setError(''); try{ const r=await fetch(`${API}/files/upload`,{method:'POST',body:fd}); if(!r.ok) throw new Error(await r.text()); const data=await r.json(); setUploadInfo(data); setForm(x=>({...x,uploaded_context:data.preview||''})); if(data.extracted_data){ autoFillFromExtracted(data.extracted_data); } }catch(err){setError(err.message||'Upload failed'); setServerStatus('down');} finally{setBusy(false); e.target.value='';}}
+  function autoFillFromExtracted(extracted){ setForm(x=>{ const updated={...x}; if(extracted.name_title) updated.patient.name_title=extracted.name_title; if(extracted.birthdate_cpr) updated.patient.birthdate_cpr=extracted.birthdate_cpr; if(extracted.gender) updated.patient.gender=extracted.gender; if(extracted.nationality) updated.patient.nationality=extracted.nationality; if(extracted.ship_name) updated.patient.ship_name=extracted.ship_name; if(extracted.coordinates) updated.patient.coordinates=extracted.coordinates; if(extracted.problem_description) updated.patient.problem_description=extracted.problem_description; if(extracted.breathing_rate) updated.assessment.breathing_rate=extracted.breathing_rate; if(extracted.oxygen_saturation) updated.assessment.oxygen_saturation=extracted.oxygen_saturation; if(extracted.pulse) updated.assessment.pulse=extracted.pulse; if(extracted.systolic_bp) updated.assessment.systolic_bp=parseInt(extracted.systolic_bp); if(extracted.diastolic_bp) updated.assessment.diastolic_bp=parseInt(extracted.diastolic_bp); if(extracted.temperature_mouth) updated.assessment.temperature_mouth=extracted.temperature_mouth; if(extracted.airway_clear!==undefined) updated.assessment.airway_clear=extracted.airway_clear; if(extracted.breathing_description_fast!==undefined) updated.assessment.breathing_description_fast=extracted.breathing_description_fast; if(extracted.breathing_description_slow!==undefined) updated.assessment.breathing_description_slow=extracted.breathing_description_slow; if(extracted.breathing_description_shallow!==undefined) updated.assessment.breathing_description_shallow=extracted.breathing_description_shallow; if(extracted.breathing_description_deep!==undefined) updated.assessment.breathing_description_deep=extracted.breathing_description_deep; if(extracted.pupil_reaction_normal!==undefined) updated.assessment.pupil_reaction_normal=extracted.pupil_reaction_normal; if(extracted.consciousness_level) updated.assessment.consciousness_level=extracted.consciousness_level; return updated; }); }
  async function clearUpload(){ setUploadInfo(null); setForm(x=>({...x,uploaded_context:''})); try{ await fetch(`${API}/files/clear`,{method:'DELETE'}); }catch{} }
  async function exportPdf(){ setBusy(true); setError(''); try{ const r=await fetch(`${API}/export/pdf`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(prep(form))}); if(!r.ok) throw new Error(await r.text()); const blob=await r.blob(); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=form.language==='da'?'radio-medical-journal.pdf':'radio-medical-record-review.pdf'; a.click(); URL.revokeObjectURL(url); }catch(e){setError(e.message||'PDF export failed'); setServerStatus('down');} finally{setBusy(false);} }
  return <main>

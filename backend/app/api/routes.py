@@ -3,7 +3,7 @@ from fastapi.responses import Response
 from app.models.schemas import RMRSubmission, ReviewResponse, UploadedDocument
 from app.services.clinical_reviewer import ClinicalReviewer
 from app.services.memory_store import MemoryStore
-from app.services.document_parser import extract_text
+from app.services.document_parser import extract_text, extract_structured_data
 from app.services.pdf_exporter import build_pdf
 
 router = APIRouter()
@@ -37,7 +37,16 @@ async def upload_file(file: UploadFile = File(...)):
             reviewer.rag.add_texts([text], metadatas=[{"filename": file.filename, "kind": kind}])
         except Exception:
             pass
-        return UploadedDocument(filename=file.filename, characters=len(text), preview=text[:5000])
+        
+        # Extract structured data for auto-fill
+        structured_data = extract_structured_data(text)
+        
+        return UploadedDocument(
+            filename=file.filename, 
+            characters=len(text), 
+            preview=text[:5000],
+            extracted_data=structured_data
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Upload failed: {exc}")
 

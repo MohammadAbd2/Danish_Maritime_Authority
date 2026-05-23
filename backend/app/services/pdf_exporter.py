@@ -95,13 +95,20 @@ def build_pdf(record, review=None) -> bytes:
     styles.add(ParagraphStyle(name="CenterBody", parent=styles["Normal"], alignment=TA_CENTER, leading=13, spaceAfter=6))
     styles.add(ParagraphStyle(name="LeftSmall", parent=styles["Normal"], alignment=TA_LEFT, fontSize=7.5, leading=10))
     styles.add(ParagraphStyle(name="SmallCenter", parent=styles["Normal"], fontSize=8.3, textColor=MUTED, alignment=TA_CENTER, leading=11))
-    styles.add(ParagraphStyle(name="ContactLeft", parent=styles["Normal"], fontSize=8.3, textColor=MUTED, alignment=TA_LEFT, leading=11))
+    styles.add(ParagraphStyle(name="ContactCenter", parent=styles["Normal"], fontSize=8.3, textColor=MUTED, alignment=TA_CENTER, leading=11))
     D = _dict(record)
     story = []
-    story.append(_logo_flowable())
-    story.append(Paragraph("Danish Maritime Authority / Søfartsstyrelsen", styles["ContactLeft"]))
-    story.append(Paragraph("Batterivej 2, 4220 Korsør, Denmark", styles["ContactLeft"]))
-    story.append(Paragraph("+45 72 19 60 00 · sfs@dma.dk · dma.dk", styles["ContactLeft"]))
+    story.append(Spacer(1, 0.3*cm))
+    
+    # Center the logo using a table
+    logo_table = Table([[_logo_flowable()]], colWidths=[17*cm])
+    logo_table.setStyle(TableStyle([("ALIGN", (0,0), (0,0), "CENTER")]))
+    story.append(logo_table)
+    
+    story.append(Spacer(1, 0.4*cm))
+    story.append(Paragraph("Danish Maritime Authority / Søfartsstyrelsen", styles["ContactCenter"]))
+    story.append(Paragraph("Batterivej 2, 4220 Korsør, Denmark", styles["ContactCenter"]))
+    story.append(Paragraph("+45 72 19 60 00 · sfs@dma.dk · dma.dk", styles["ContactCenter"]))
     story.append(Spacer(1, 0.8*cm))
     if record.language == "both":
         title = EN["title"] + " / " + DA["title"]

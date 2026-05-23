@@ -17,3 +17,4 @@ Pillow==11.0.0
 pytesseract==0.3.13
 reportlab==4.2.5
 svglib==1.5.1
+ollama>=0.4.4,<1

@@ -96,6 +96,7 @@ class UploadedDocument(BaseModel):
     filename: str
     characters: int
     preview: str
+    extracted_data: Optional[Dict[str, Any]] = None
 
 class RMRSubmission(BaseModel):
     patient: PatientInfo
